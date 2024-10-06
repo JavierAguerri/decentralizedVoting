@@ -1,0 +1,14 @@
+{
+  "name": "decentralizedvoting",
+  "version": "1.0.0",
+  "description": "Decentralized voting system smart contract",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Javier Aguerri",
+  "license": "ISC",
+  "devDependencies": {
+    "hardhat": "^2.22.12"
+  }
+}

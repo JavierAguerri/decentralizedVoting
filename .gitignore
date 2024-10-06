@@ -1,0 +1,62 @@
+# ==============================
+# Solidity Project .gitignore
+# ==============================
+
+# ---------------------------------
+# Node
+# ---------------------------------
+node_modules
+
+# ---------------------------------
+# Build Artifacts
+# ---------------------------------
+# Hardhat
+artifacts/
+cache/
+# Truffle (legacy)
+contracts/artifacts/
+
+# ---------------------------------
+# OS Generated Files
+# ---------------------------------
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ---------------------------------
+# Temporary Files
+# ---------------------------------
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ---------------------------------
+# Env Files
+# ---------------------------------
+.env
+
+# ---------------------------------
+# Remixd Specific
+# ---------------------------------
+# If using remixd to connect Remix IDE to local files
+remixd.log
+
+# ---------------------------------
+# Secrets and Sensitive Data
+# ---------------------------------
+# Ensure you do not commit any secret keys or sensitive information
+secrets/
+keys/
+*.pem
+*.key
+*.crt
+
+.states
