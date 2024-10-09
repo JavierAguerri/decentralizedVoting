@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 import "../.deps/npm/@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.26;
 
-contract VotingOriginal is ReentrancyGuard {
+contract VotingImprovedBurning is ReentrancyGuard {
     struct Proposal {
         bytes32 description;
         uint256 voteCount;
     }
 
-    address public chairperson;
+    address public immutable chairperson;
     Proposal[] public proposals;
     address payable public constant BURN_ADDRESS = payable(0x000000000000000000000000000000000000dEaD);
     uint256 public constant requiredBurn = 0.01 ether;
@@ -28,12 +28,12 @@ contract VotingOriginal is ReentrancyGuard {
         _;
     }
 
-    constructor(bytes32[] memory proposalNames) {
+    constructor(bytes32[] memory proposalNames, uint256 blockDuration) {
         require(proposalNames.length >= 2, "At least 2 proposals needed");
         require(!isProposalDuplicate(proposalNames), "Proposals cannot be duplicated");
         chairperson = msg.sender;
-        votingDeadlineBlock = block.number + 10000;
-        for (uint256 i; i < proposalNames.length; i++) {
+        votingDeadlineBlock = block.number + blockDuration;
+        for (uint256 i = 0; i < proposalNames.length; i++) {
             proposals.push(Proposal({description: proposalNames[i], voteCount: 0}));
         }
     }
@@ -41,16 +41,17 @@ contract VotingOriginal is ReentrancyGuard {
     function vote(uint256 proposal) external payable onlyDuringVoting nonReentrant {
         require(msg.value == requiredBurn, "Incorrect Ether amount sent for registration");
         require(proposal < proposals.length, "Invalid proposal");
-        (bool success, ) = BURN_ADDRESS.call{value: msg.value}("");
-        require(success, "Ether transfer to burn address failed");
         proposals[proposal].voteCount += 1;
         emit VoteCast(msg.sender, proposal);
+        (bool success, ) = BURN_ADDRESS.call{value: msg.value}("");
+        require(success, "Ether transfer to burn address failed");
     }
 
     function getWinningProposalIndex() private view onlyAfterVoting returns (uint256 winningProposalIndex) {
         uint256 winningVoteCount;
-        winningProposalIndex;
-        for (uint256 i; i < proposals.length; i++) {
+        winningProposalIndex = 0;
+        uint256 proposalsLength = proposals.length;
+        for (uint256 i = 0; i < proposalsLength; i++) {
             if (proposals[i].voteCount > winningVoteCount) {
                 winningVoteCount = proposals[i].voteCount;
                 winningProposalIndex = i;
@@ -61,7 +62,8 @@ contract VotingOriginal is ReentrancyGuard {
     function thereIsTie() private view onlyAfterVoting returns (bool) {
         uint256 winningVoteCount;
         uint256 votesAtTie;
-        for (uint256 i; i < proposals.length; i++) {
+        uint256 proposalsLength = proposals.length;
+        for (uint256 i = 0; i < proposalsLength; i++) {
             if (proposals[i].voteCount > winningVoteCount) {
                 winningVoteCount = proposals[i].voteCount;
             } else if (proposals[i].voteCount == winningVoteCount) {
@@ -83,7 +85,7 @@ contract VotingOriginal is ReentrancyGuard {
     }
 
     function isProposalDuplicate(bytes32[] memory proposalNames) private pure returns (bool) {
-        for (uint256 i; i < proposalNames.length; i++) {
+        for (uint256 i = 0; i < proposalNames.length; i++) {
             for (uint256 j; j < i; j++) {
                 if (proposalNames[i] == proposalNames[j]) {
                     return true;

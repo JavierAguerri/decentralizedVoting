@@ -60,3 +60,5 @@ keys/
 *.crt
 
 .states
+typechain-types/*
+remix-compiler.config.js

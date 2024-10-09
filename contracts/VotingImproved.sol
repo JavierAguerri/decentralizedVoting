@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.26;
 
-contract VotingOriginal {
+contract VotingImproved {
     struct Proposal {
         bytes32 description;
         uint256 voteCount;
@@ -11,7 +11,7 @@ contract VotingOriginal {
         bool voted;
     }
 
-    address public chairperson;
+    address public immutable chairperson;
     Proposal[] public proposals;
     mapping(address => Voter) public voters;
     uint256 public votingDeadlineBlock;
@@ -35,12 +35,12 @@ contract VotingOriginal {
         _;
     }
 
-    constructor(bytes32[] memory proposalNames) {
+    constructor(bytes32[] memory proposalNames, uint256 blockDuration) {
         require(proposalNames.length >= 2, "At least 2 proposals needed");
         require(!isProposalDuplicate(proposalNames), "Proposals cannot be duplicated");
         chairperson = msg.sender;
-        votingDeadlineBlock = block.number + 10000;
-        for (uint256 i; i < proposalNames.length; i++) {
+        votingDeadlineBlock = block.number + blockDuration;
+        for (uint256 i = 0; i < proposalNames.length; i++) {
             proposals.push(Proposal({description: proposalNames[i], voteCount: 0}));
         }
     }
@@ -63,8 +63,9 @@ contract VotingOriginal {
 
     function getWinningProposalIndex() private view onlyAfterVoting returns (uint256 winningProposalIndex) {
         uint256 winningVoteCount;
-        winningProposalIndex;
-        for (uint256 i; i < proposals.length; i++) {
+        winningProposalIndex = 0;
+        uint256 proposalsLength = proposals.length;
+        for (uint256 i = 0; i < proposalsLength; i++) {
             if (proposals[i].voteCount > winningVoteCount) {
                 winningVoteCount = proposals[i].voteCount;
                 winningProposalIndex = i;
@@ -75,7 +76,8 @@ contract VotingOriginal {
     function thereIsTie() private view onlyAfterVoting returns (bool) {
         uint256 winningVoteCount;
         uint256 votesAtTie;
-        for (uint256 i; i < proposals.length; i++) {
+        uint256 proposalsLength = proposals.length;
+        for (uint256 i = 0; i < proposalsLength; i++) {
             if (proposals[i].voteCount > winningVoteCount) {
                 winningVoteCount = proposals[i].voteCount;
             } else if (proposals[i].voteCount == winningVoteCount) {
@@ -97,7 +99,7 @@ contract VotingOriginal {
     }
 
     function isProposalDuplicate(bytes32[] memory proposalNames) private pure returns (bool) {
-        for (uint256 i; i < proposalNames.length; i++) {
+        for (uint256 i = 0; i < proposalNames.length; i++) {
             for (uint256 j; j < i; j++) {
                 if (proposalNames[i] == proposalNames[j]) {
                     return true;
