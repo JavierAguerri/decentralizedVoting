@@ -91,7 +91,6 @@ verified. Identify also <b>edge cases.</b></p>
 
 ### Answer
 <p>Only the functionalities present in the original contract provided will be considered in this section.</p>
-<p>Only the functionalities present in the original contract provided will be considered in this section.</p>
 
 #### Functionality: Initial deployment
 <ul>
